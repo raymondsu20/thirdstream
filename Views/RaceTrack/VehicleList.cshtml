@@ -1,0 +1,19 @@
+﻿@model IEnumerable<ThirdStream.Models.Vehicle>
+
+<p>
+  Vechiles on Track
+</p>
+<ul>
+  @if(Model.Count() < 1)
+  {
+    <li>
+      empty
+    </li>
+  }
+  @foreach (var item in Model)
+  {
+    <li>
+      @(item.VehicleType)(@item.Id)
+    </li>
+  }
+</ul>

@@ -1,0 +1,91 @@
+﻿@model ThirdStream.ViewModels.RaceTrackInfo
+
+@{
+  Layout = "_Layout";
+  string selectId = "typeid";
+  string partialViewId = "vehicleOnTrack";
+}
+
+
+<h4>VehicleWithCondtions</h4>
+<hr />
+
+<div id="@partialViewId">
+
+</div>
+
+@using (Html.BeginForm("Index", "RaceTrack"))
+{
+  <div class="form-group">
+    @Html.DropDownListFor(m => m.SelectedType, new SelectList(
+     Model.VehicleTypes.Select(x => new { Value = x, Text = x.ToString() }),
+     "Value",
+     "Text"), "Select a type", new { id = selectId })
+    <div id="conditions">
+      @foreach (var vehicle in Model.Conditions.Keys)
+      {
+
+        <div id="@vehicle">
+          @for (int i = 0; i < Model.Conditions[vehicle].Count; ++i)
+          {
+            <div class="form-check">
+              <span>@Model.Conditions[vehicle][i].Condition.Description</span>
+              <span>@Html.CheckBoxFor(x => x.Conditions[vehicle][i].Checked)</span>
+            </div>
+            @Html.HiddenFor(x => x.Conditions[vehicle][i].Condition.Id)
+          }
+        </div>
+
+      }
+    </div>
+
+  </div>
+  @Html.HiddenFor(m => m.RaceTrackId)
+  @Html.HiddenFor(m => m.RaceTrackCapacity)
+  <input type="submit" />
+}
+
+
+
+<div>
+  @Html.ValidationSummary()
+</div>
+
+@section Scripts {
+  @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+
+  function getVehicles() {
+
+    $.ajax({
+      type: 'get',
+      url: '@Url.Action("VehicleList")',
+      data: { trackId: @Model.RaceTrackId },
+      success: function (data) {
+        $('#@partialViewId').html(data);
+      }
+    });
+  }
+
+  $(() => {
+    $(@selectId).trigger('change');
+    setInterval(() => getVehicles(), 2000);
+  });
+  $(@selectId).change(function () {
+    if ($(this).val()) {
+      $('#conditions').show();
+      var id = '#' + $(this).val();
+      $(id).siblings().hide();
+      $(id).show();
+    } else {
+      $('#conditions').hide();
+    }
+
+  })
+</script>
+
+
+}
+
+
